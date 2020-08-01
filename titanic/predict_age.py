@@ -11,9 +11,10 @@ if __name__ == "__main__":
     # loading datasets
     train_df = pd.read_csv("train.csv")
     test_df = pd.read_csv("test.csv")
-    df = pd.concat([train_df, test_df], ignore_index=True, sort=False)
+    combined_df = pd.concat([train_df, test_df], ignore_index=True, sort=False)
 
     # transforming dataset (feature engineering, encoding, etc.)
+    df = combined_df.copy()
     df = dataset.drop(df, [
         "Sex", "Name", "PassengerId", "Ticket", "Cabin", "Embarked",
         "Pclass", "SibSp", "Parch", "Survived"
@@ -49,9 +50,9 @@ if __name__ == "__main__":
     predict = dataset.make_predictions(X_test)
 
     # write them to new dataframe
-    df = pd.read_csv("train.csv")
     predict_df = pd.DataFrame(predict)
     predict_df.index = X_test.index
     predict_col = predict_df.iloc[:, 0]
-    df["Age"] = df["Age"].fillna(predict_col)
-    df.to_csv("train_age.csv", index=False)
+    final_df = combined_df.copy()
+    final_df["Age"] = final_df["Age"].fillna(predict_col)
+    final_df.to_csv("train_age.csv", index=False)

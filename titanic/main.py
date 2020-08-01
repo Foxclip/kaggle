@@ -1,4 +1,7 @@
 import pandas as pd
+import numpy as np
+import sys
+sys.path.insert(0, "e:\\Projects\\Python\\nn_sim\\")
 import nn_sim.dataset as dataset
 
 if __name__ == "__main__":
@@ -6,49 +9,48 @@ if __name__ == "__main__":
     # Increasing number of columns so all of them are showed
     pd.set_option('display.max_columns', 20)
 
-    # defining dataset transormations (feature engineering, encoding, etc.)
-    def transform_dataset(df):
+    # loading datasets
+    train_df = pd.read_csv("train.csv")
+    test_df = pd.read_csv("test.csv")
+    combined_df = pd.concat([train_df, test_df], ignore_index=True, sort=False)
 
-        df = dataset.fillna(df, [])
-        df = dataset.impute(df, ["Age", "Fare", "Embarked"])
+    # transforming dataset
 
-        # whether passenger is alone
-        df["Family"] = df["SibSp"] + df["Parch"]
-        df["IsAlone"] = df["Family"] == 0
-        df = dataset.drop(df, ["SibSp", "Parch", "Family"])
+    df = combined_df.copy()
 
-        # age categories
-        df["Age"] = pd.cut(
-            df["Age"],
-            (0, 18, 35, 60, 120),
-            labels=["Child", "Young", "Middle", "Old"]
-        )
-        # fare categories
-        df["Fare"] = pd.cut(
-            df["Fare"],
-            (0, 10, 100, 600),
-            include_lowest=True,
-            labels=["0-10", "10-100", "100-600"],
-        )
+    # filling missing values
+    df = dataset.impute(df, ["Fare", "Embarked"])
 
-        df = dataset.label_encode(df, [])
-        # df = one_hot_encode(df, ["Sex", "Embarked", "Pclass"])
-        df = dataset.one_hot_encode(df, [
-            "Sex", "Embarked", "Pclass", "Age", "Fare"
-        ])
-        df = dataset.drop(df, ["Name", "PassengerId", "Ticket", "Cabin"])
-        df = dataset.scale(df, exclude_cols=["Survived"])
+    # whether passenger is alone
+    df["Family"] = df["SibSp"] + df["Parch"]
+    df["IsAlone"] = df["Family"] == 0
+    df = dataset.drop(df, ["SibSp", "Parch", "Family"])
 
-        # print(df)
-        # import sys
-        # sys.exit(0)
+    # age categories
+    df["Age"] = pd.cut(
+        df["Age"],
+        (0, 18, 35, 60, 120),
+        labels=["Child", "Young", "Middle", "Old"]
+    )
+    # fare categories
+    df["Fare"] = pd.cut(
+        df["Fare"],
+        (0, 10, 100, 600),
+        include_lowest=True,
+        labels=["0-10", "10-100", "100-600"],
+    )
 
-        return df
+    df = dataset.label_encode(df, [])
+    # df = one_hot_encode(df, ["Sex", "Embarked", "Pclass"])
+    df = dataset.one_hot_encode(df, [
+        "Sex", "Embarked", "Pclass", "Age", "Fare"
+    ])
+    df = dataset.drop(df, ["Name", "PassengerId", "Ticket", "Cabin"])
+    df = dataset.scale(df, exclude_cols=["Survived"])
 
-    # specifying what to do with dataset
-    colnames = dataset.ColNames()
-    colnames.target_col = "Survived"
-    colnames.test_id = "PassengerId"
+    # print(df)
+    # import sys
+    # sys.exit(0)
 
     # specifying settings of a model
     model_settings = dataset.NeuralNetworkSettings()
@@ -60,15 +62,16 @@ if __name__ == "__main__":
     model_settings.epochs = 320
 
     # specifying lists of parameters
-    layers_lst = [1, 2, 3]
-    neurons_lst = [3, 4, 5, 6, 7, 8, 9, 10, 11]
+    # layers_lst = [1, 2, 3]
+    # neurons_lst = [3, 4, 5, 6, 7, 8, 9, 10, 11]
+    layers_lst = [1]
+    neurons_lst = [3]
 
     # loading and preparing data
-    data_split, X = dataset.load_data("train.csv", "test.csv",
-                                      colnames=colnames, f=transform_dataset)
+    data_split, X_test = dataset.split_data(df, target_col="Survived")
 
     # training models and saving file with predictions on test dataset
     dataset.train_models(data_split, model_settings, layers_lst, neurons_lst)
 
     # making predictions with the best model
-    dataset.make_predictions(X, colnames)
+    predict = np.round(dataset.make_predictions(X_test))
