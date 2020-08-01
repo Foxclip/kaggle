@@ -75,3 +75,7 @@ if __name__ == "__main__":
 
     # making predictions with the best model
     predict = np.round(dataset.make_predictions(X_test))
+    final_df = pd.DataFrame(test_df["PassengerId"])
+    final_df["Survived"] = predict
+    final_df["Survived"] = final_df["Survived"].astype(int)
+    final_df.to_csv("output.csv", index=False)
