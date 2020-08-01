@@ -15,14 +15,33 @@ if __name__ == "__main__":
 
     # transforming dataset (feature engineering, encoding, etc.)
     df = combined_df.copy()
+
+    # dropping unneeded columns
     df = dataset.drop(df, [
-        "Sex", "Name", "PassengerId", "Ticket", "Cabin", "Embarked",
-        "Pclass", "SibSp", "Parch", "Survived"
+        "Name", "PassengerId", "Ticket", "Cabin", "Survived"
     ])
-    df = dataset.impute(df, ["Fare"])
+
+    # filling missing data
+    df = dataset.impute(df, ["Fare", "Embarked"])
+
+    # family member count
+    df["Family"] = df["SibSp"] + df["Parch"]
+    df["IsAlone"] = df["Family"] == 0
+
+    # fare categories
+    df["Fare"] = pd.cut(
+        df["Fare"],
+        (0, 10, 100, 600),
+        include_lowest=True,
+        labels=["0-10", "10-100", "100-600"],
+    )
+
+    df = dataset.one_hot_encode(df, [
+        "Sex", "Embarked", "Pclass", "Fare"
+    ])
     df = dataset.scale(df, exclude_cols="Age")
 
-    # print(df)
+    # print(df.isnull().sum())
     # df.to_csv("age.csv")
     # import sys
     # sys.exit(0)
@@ -34,11 +53,12 @@ if __name__ == "__main__":
     model_settings.output_count = 1
     model_settings.optimizer = "Adam"
     model_settings.batch_size = 32
-    model_settings.epochs = 320
+    model_settings.epochs = 3200
+    model_settings.loss = "val"
 
     # specifying lists of parameters
-    layers_lst = [1]
-    neurons_lst = [3]
+    layers_lst = [1, 2, 3]
+    neurons_lst = [3, 4, 5, 6, 7, 8, 9, 10]
 
     # loading and preparing data
     data_split, X_test = dataset.split_data(df, target_col="Age")
