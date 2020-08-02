@@ -57,16 +57,16 @@ if __name__ == "__main__":
     model_settings = dataset.NeuralNetworkSettings()
     model_settings.task_type = dataset.TaskTypes.binary_classification
     model_settings.output_count = 1
-    model_settings.epochs = 3200
+    model_settings.epochs = 32
     model_settings.folds = 10
     model_settings.target_col = "Survived"
-    model_settings.cross_validate = False
+    model_settings.validation = dataset.ValidationTypes.val_split
 
     # specifying lists of parameters
-    layers_lst = [3]
-    neurons_lst = [10]
-    # layers_lst = [2, 3]
-    # neurons_lst = [7, 8, 9, 10]
+    # layers_lst = [3]
+    # neurons_lst = [10]
+    layers_lst = [2, 3]
+    neurons_lst = [7, 8, 9, 10]
 
     # loading and preparing data
     X_train, X_test = dataset.cut_dataset(df, target_col="Survived")
