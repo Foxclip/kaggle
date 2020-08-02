@@ -57,19 +57,21 @@ if __name__ == "__main__":
     model_settings = dataset.NeuralNetworkSettings()
     model_settings.task_type = dataset.TaskTypes.binary_classification
     model_settings.output_count = 1
-    model_settings.epochs = 3200
+    model_settings.epochs = 32
+    model_settings.folds = 10
+    model_settings.target_col = "Survived"
 
     # specifying lists of parameters
+    layers_lst = [1]
+    neurons_lst = [3]
     # layers_lst = [1, 2, 3]
-    # neurons_lst = [3, 4, 5, 6, 7, 8, 9, 10, 11]
-    layers_lst = [1, 2, 3]
-    neurons_lst = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+    # neurons_lst = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
 
     # loading and preparing data
-    data_split, X_test = dataset.split_data(df, target_col="Survived")
+    X_train, X_test = dataset.cut_dataset(df, target_col="Survived")
 
     # training models and saving file with predictions on test dataset
-    dataset.train_models(data_split, model_settings, layers_lst, neurons_lst)
+    dataset.train_models(X_train, model_settings, layers_lst, neurons_lst)
 
     # making predictions with the best model
     predict = np.round(dataset.make_predictions(X_test))
