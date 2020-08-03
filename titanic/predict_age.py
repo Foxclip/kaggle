@@ -18,7 +18,7 @@ if __name__ == "__main__":
 
     # dropping unneeded columns
     df = dataset.drop(df, [
-        "Name", "PassengerId", "Ticket", "Cabin", "Survived"
+        "PassengerId", "Ticket", "Cabin", "Survived"
     ])
 
     # filling missing data
@@ -27,6 +27,14 @@ if __name__ == "__main__":
     # family member count
     df["Family"] = df["SibSp"] + df["Parch"]
     df["IsAlone"] = df["Family"] == 0
+
+    # name prefixes
+    def func(name):
+        parts = name.split(",")
+        prefix = parts[1].split(" ")[1]
+        return prefix
+
+    df["Name"] = df["Name"].map(func)
 
     # fare categories
     # df["Fare"] = pd.cut(
@@ -37,11 +45,10 @@ if __name__ == "__main__":
     # )
 
     df = dataset.one_hot_encode(df, [
-        "Sex", "Embarked", "Pclass"
+        "Sex", "Embarked", "Pclass", "Name"
     ])
     df = dataset.scale(df, exclude_cols="Age")
 
-    # print(df.isnull().sum())
     # df.to_csv("age.csv")
     # import sys
     # sys.exit(0)
@@ -50,15 +57,16 @@ if __name__ == "__main__":
     model_settings = dataset.NeuralNetworkSettings()
     model_settings.task_type = dataset.TaskTypes.regression
     model_settings.intermediate_activations = "relu"
-    model_settings.epochs = 100
+    model_settings.epochs = 25
     model_settings.target_col = "Age"
-    model_settings.validation = dataset.ValidationTypes.val_split
+    model_settings.validation = dataset.ValidationTypes.cross_val
+    model_settings.folds = 10
 
     # specifying lists of parameters
     # layers_lst = [2, 3]
     # neurons_lst = [2, 4, 8, 16, 32, 64, 128]
-    layers_lst = [1]
-    neurons_lst = [1, 32, 128]
+    layers_lst = [3, 4, 5]
+    neurons_lst = [4, 8, 16, 32, 64, 128, 256, 512]
 
     # loading and preparing data
     X_train, X_test = dataset.cut_dataset(df, target_col="Age")
