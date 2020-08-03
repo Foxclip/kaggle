@@ -29,15 +29,15 @@ if __name__ == "__main__":
     df["IsAlone"] = df["Family"] == 0
 
     # fare categories
-    df["Fare"] = pd.cut(
-        df["Fare"],
-        (0, 10, 100, 600),
-        include_lowest=True,
-        labels=["0-10", "10-100", "100-600"],
-    )
+    # df["Fare"] = pd.cut(
+    #     df["Fare"],
+    #     (0, 10, 100, 600),
+    #     include_lowest=True,
+    #     labels=["0-10", "10-100", "100-600"],
+    # )
 
     df = dataset.one_hot_encode(df, [
-        "Sex", "Embarked", "Pclass", "Fare"
+        "Sex", "Embarked", "Pclass"
     ])
     df = dataset.scale(df, exclude_cols="Age")
 
@@ -50,21 +50,21 @@ if __name__ == "__main__":
     model_settings = dataset.NeuralNetworkSettings()
     model_settings.task_type = dataset.TaskTypes.regression
     model_settings.intermediate_activations = "relu"
-    model_settings.output_count = 1
-    model_settings.optimizer = "Adam"
-    model_settings.batch_size = 32
-    model_settings.epochs = 3200
-    model_settings.loss = "val"
+    model_settings.epochs = 100
+    model_settings.target_col = "Age"
+    model_settings.validation = dataset.ValidationTypes.val_split
 
     # specifying lists of parameters
-    layers_lst = [1, 2, 3]
-    neurons_lst = [3, 4, 5, 6, 7, 8, 9, 10]
+    # layers_lst = [2, 3]
+    # neurons_lst = [2, 4, 8, 16, 32, 64, 128]
+    layers_lst = [1]
+    neurons_lst = [1, 32, 128]
 
     # loading and preparing data
-    data_split, X_test = dataset.split_data(df, target_col="Age")
+    X_train, X_test = dataset.cut_dataset(df, target_col="Age")
 
     # training models and saving file with predictions on test dataset
-    dataset.train_models(data_split, model_settings, layers_lst, neurons_lst)
+    dataset.train_models(X_train, model_settings, layers_lst, neurons_lst)
 
     # making predictions with the best model
     predict = dataset.make_predictions(X_test)
