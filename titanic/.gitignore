@@ -144,3 +144,4 @@ output.txt
 models/
 best_model/
 IDEAS.txt
+tmp/

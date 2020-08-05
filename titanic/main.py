@@ -42,6 +42,14 @@ if __name__ == "__main__":
         labels=["0-10", "10-100", "100-600"],
     )
 
+    # # name prefixes
+    # def func(name):
+    #     parts = name.split(",")
+    #     prefix = parts[1].split(" ")[1]
+    #     return prefix
+    #
+    # df["Name"] = df["Name"].map(func)
+
     df = dataset.label_encode(df, [])
     # df = one_hot_encode(df, ["Sex", "Embarked", "Pclass"])
     df = dataset.one_hot_encode(df, [
@@ -57,16 +65,16 @@ if __name__ == "__main__":
     model_settings = dataset.NeuralNetworkSettings()
     model_settings.task_type = dataset.TaskTypes.binary_classification
     model_settings.output_count = 1
-    model_settings.epochs = 32
+    model_settings.epochs = 4
     model_settings.folds = 10
     model_settings.target_col = "Survived"
-    model_settings.validation = dataset.ValidationTypes.val_split
+    model_settings.validation = dataset.ValidationTypes.none
 
     # specifying lists of parameters
-    # layers_lst = [3]
-    # neurons_lst = [10]
-    layers_lst = [2, 3]
-    neurons_lst = [7, 8, 9, 10]
+    layers_lst = [5]
+    neurons_lst = [512]
+    # layers_lst = [2, 3, 4, 5]
+    # neurons_lst = [16, 32, 64, 128, 256, 512]
 
     # loading and preparing data
     X_train, X_test = dataset.cut_dataset(df, target_col="Survived")
