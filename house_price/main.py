@@ -11,7 +11,7 @@ if __name__ == "__main__":
     # loading datasets
     train_df = pd.read_csv("train.csv")
     test_df = pd.read_csv("test.csv")
-    combined_df = pd.concat([train_df, test_df])
+    combined_df = pd.concat([train_df, test_df], ignore_index=True)
 
     target_col = "SalePrice"
 
@@ -22,8 +22,10 @@ if __name__ == "__main__":
     # dropping unneeded columns
     # df = dataset.drop(df, ["Name", "PassengerId", "Ticket", "Cabin"])
     df = df[[
+        "MSSubClass",
         "LotArea",
         "YearBuilt",
+        "YearRemodAdd",
         "SalePrice"
     ]]
 
@@ -31,9 +33,9 @@ if __name__ == "__main__":
     # df = dataset.impute(df, ["Fare", "Embarked"])
 
     # df = dataset.label_encode(df, [])
-    # df = dataset.one_hot_encode(df, [
-    #     "Sex", "Embarked", "Pclass", "Age", "Fare"
-    # ])
+    df = dataset.one_hot_encode(df, [
+        "MSSubClass"
+    ])
     df, scalers = dataset.scale(df)
 
     # print(df)
