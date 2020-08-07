@@ -44,24 +44,26 @@ if __name__ == "__main__":
     model_settings = dataset.NeuralNetworkSettings()
     model_settings.task_type = dataset.TaskTypes.regression
     model_settings.output_count = 1
-    model_settings.epochs = 400
+    model_settings.epochs = 40
     model_settings.folds = 10
     model_settings.target_col = target_col
     model_settings.validation = dataset.ValidationTypes.val_split
+    model_settings.unscale_loss = True
     model_settings.checkpoint = False
     model_settings.gpu = False
 
     # specifying lists of parameters
-    layers_lst = [1]
-    neurons_lst = [3]
-    # layers_lst = [2, 3, 4, 5]
-    # neurons_lst = [16, 32, 64, 128, 256, 512]
+    # layers_lst = [1]
+    # neurons_lst = [3]
+    layers_lst = [2, 3, 4, 5]
+    neurons_lst = [16, 32, 64, 128, 256, 512]
 
     # loading and preparing data
     X_train, X_test = dataset.cut_dataset(df, target_col=target_col)
 
     # training models and saving file with predictions on test dataset
-    dataset.train_models(X_train, model_settings, layers_lst, neurons_lst)
+    dataset.train_models(X_train, scalers, model_settings, layers_lst,
+                         neurons_lst)
 
     # making predictions with the best model
     predict = dataset.make_predictions(X_test, scalers)
