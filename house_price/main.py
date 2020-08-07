@@ -21,7 +21,11 @@ if __name__ == "__main__":
 
     # dropping unneeded columns
     # df = dataset.drop(df, ["Name", "PassengerId", "Ticket", "Cabin"])
-    df = df[["LotArea", "YearBuilt", "SalePrice"]]
+    df = df[[
+        "LotArea",
+        "YearBuilt",
+        "SalePrice"
+    ]]
 
     # filling missing values
     # df = dataset.impute(df, ["Fare", "Embarked"])
@@ -30,7 +34,7 @@ if __name__ == "__main__":
     # df = dataset.one_hot_encode(df, [
     #     "Sex", "Embarked", "Pclass", "Age", "Fare"
     # ])
-    df = dataset.scale(df, exclude_cols=[target_col])
+    df, scalers = dataset.scale(df)
 
     # print(df)
     # import sys
@@ -40,7 +44,7 @@ if __name__ == "__main__":
     model_settings = dataset.NeuralNetworkSettings()
     model_settings.task_type = dataset.TaskTypes.regression
     model_settings.output_count = 1
-    model_settings.epochs = 4
+    model_settings.epochs = 400
     model_settings.folds = 10
     model_settings.target_col = target_col
     model_settings.validation = dataset.ValidationTypes.val_split
@@ -48,10 +52,10 @@ if __name__ == "__main__":
     model_settings.gpu = False
 
     # specifying lists of parameters
-    # layers_lst = [1]
-    # neurons_lst = [3]
-    layers_lst = [2, 3, 4, 5]
-    neurons_lst = [16, 32, 64, 128, 256, 512]
+    layers_lst = [1]
+    neurons_lst = [3]
+    # layers_lst = [2, 3, 4, 5]
+    # neurons_lst = [16, 32, 64, 128, 256, 512]
 
     # loading and preparing data
     X_train, X_test = dataset.cut_dataset(df, target_col=target_col)
@@ -60,7 +64,7 @@ if __name__ == "__main__":
     dataset.train_models(X_train, model_settings, layers_lst, neurons_lst)
 
     # making predictions with the best model
-    predict = dataset.make_predictions(X_test)
+    predict = dataset.make_predictions(X_test, scalers)
     final_df = pd.DataFrame(test_df["Id"])
     final_df[target_col] = predict
     final_df.to_csv("output.csv", index=False)
