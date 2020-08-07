@@ -23,21 +23,29 @@ if __name__ == "__main__":
     # df = dataset.drop(df, ["Name", "PassengerId", "Ticket", "Cabin"])
     df = df[[
         "MSSubClass",
+        "MSZoning",
         "LotArea",
+        "LotFrontage",
         "YearBuilt",
         "YearRemodAdd",
-        "SalePrice"
+        "SalePrice",
     ]]
 
+    # df = dataset.swap(df, ["LotFrontage"], "NA", None)
+
     # filling missing values
-    # df = dataset.impute(df, ["Fare", "Embarked"])
+    df = dataset.impute(df, [
+        "LotFrontage",
+    ])
 
     # df = dataset.label_encode(df, [])
     df = dataset.one_hot_encode(df, [
-        "MSSubClass"
+        "MSSubClass",
+        "MSZoning",
     ])
     df, scalers = dataset.scale(df)
 
+    # df.to_csv("df.csv")
     # print(df)
     # import sys
     # sys.exit(0)
