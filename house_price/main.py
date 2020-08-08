@@ -64,7 +64,8 @@ if __name__ == "__main__":
     model_settings.output_count = 1
     model_settings.epochs = 40
     model_settings.folds = 10
-    model_settings.validation = simulation.ValidationTypes.val_split
+    model_settings.bin_count = 3
+    model_settings.validation = simulation.ValidationTypes.cross_val
     model_settings.unscale_loss = True
     model_settings.checkpoint = False
     model_settings.gpu = False
