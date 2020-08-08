@@ -24,8 +24,11 @@ if __name__ == "__main__":
     df = df[[
         "MSSubClass",
         "MSZoning",
-        "LotArea",
         "LotFrontage",
+        "LotArea",
+        "Street",
+        "Alley",
+        "LotShape",
         "YearBuilt",
         "YearRemodAdd",
         "SalePrice",
@@ -37,11 +40,17 @@ if __name__ == "__main__":
     df = dataset.impute(df, [
         "LotFrontage",
     ])
+    df = dataset.fillna(df, [
+        "Alley"
+    ])
 
     # df = dataset.label_encode(df, [])
     df = dataset.one_hot_encode(df, [
         "MSSubClass",
         "MSZoning",
+        "Street",
+        "Alley",
+        "LotShape",
     ])
     df, scalers = dataset.scale(df)
 
@@ -57,7 +66,7 @@ if __name__ == "__main__":
     model_settings.epochs = 40
     model_settings.folds = 10
     model_settings.target_col = target_col
-    model_settings.validation = dataset.ValidationTypes.val_split
+    model_settings.validation = dataset.ValidationTypes.cross_val
     model_settings.unscale_loss = True
     model_settings.checkpoint = False
     model_settings.gpu = False
