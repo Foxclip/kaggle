@@ -2,6 +2,7 @@ import pandas as pd
 import sys
 sys.path.insert(0, "e:\\Projects\\Python\\nn_sim\\")
 import nn_sim.dataset as dataset
+import nn_sim.simulation as simulation
 
 if __name__ == "__main__":
 
@@ -12,16 +13,14 @@ if __name__ == "__main__":
     train_df = pd.read_csv("train.csv")
     test_df = pd.read_csv("test.csv")
     combined_df = pd.concat([train_df, test_df], ignore_index=True)
-
-    target_col = "SalePrice"
+    dataset.load_dataset(combined_df)
+    dataset.target_col = "SalePrice"
 
     # transforming dataset
 
-    df = combined_df.copy()
-
     # dropping unneeded columns
     # df = dataset.drop(df, ["Name", "PassengerId", "Ticket", "Cabin"])
-    df = df[[
+    dataset.leave_columns([
         "MSSubClass",
         "MSZoning",
         "LotFrontage",
@@ -32,27 +31,27 @@ if __name__ == "__main__":
         "YearBuilt",
         "YearRemodAdd",
         "SalePrice",
-    ]]
+    ])
 
     # df = dataset.swap(df, ["LotFrontage"], "NA", None)
 
     # filling missing values
-    df = dataset.impute(df, [
+    dataset.impute([
         "LotFrontage",
     ])
-    df = dataset.fillna(df, [
+    dataset.fillna([
         "Alley"
     ])
 
     # df = dataset.label_encode(df, [])
-    df = dataset.one_hot_encode(df, [
+    dataset.one_hot_encode([
         "MSSubClass",
         "MSZoning",
         "Street",
         "Alley",
         "LotShape",
     ])
-    df, scalers = dataset.scale(df)
+    scalers = dataset.scale()
 
     # df.to_csv("df.csv")
     # print(df)
@@ -60,13 +59,12 @@ if __name__ == "__main__":
     # sys.exit(0)
 
     # specifying settings of a model
-    model_settings = dataset.NeuralNetworkSettings()
-    model_settings.task_type = dataset.TaskTypes.regression
+    model_settings = simulation.NeuralNetworkSettings()
+    model_settings.task_type = simulation.TaskTypes.regression
     model_settings.output_count = 1
     model_settings.epochs = 40
     model_settings.folds = 10
-    model_settings.target_col = target_col
-    model_settings.validation = dataset.ValidationTypes.cross_val
+    model_settings.validation = simulation.ValidationTypes.val_split
     model_settings.unscale_loss = True
     model_settings.checkpoint = False
     model_settings.gpu = False
@@ -77,15 +75,11 @@ if __name__ == "__main__":
     layers_lst = [2, 3, 4, 5]
     neurons_lst = [16, 32, 64, 128, 256, 512]
 
-    # loading and preparing data
-    X_train, X_test = dataset.cut_dataset(df, target_col=target_col)
-
     # training models and saving file with predictions on test dataset
-    dataset.train_models(X_train, scalers, model_settings, layers_lst,
-                         neurons_lst)
+    dataset.train_models(model_settings, layers_lst, neurons_lst)
 
     # making predictions with the best model
-    predict = dataset.make_predictions(X_test, scalers)
+    predict = dataset.make_predictions()
     final_df = pd.DataFrame(test_df["Id"])
-    final_df[target_col] = predict
+    final_df[dataset.target_col] = predict
     final_df.to_csv("output.csv", index=False)
