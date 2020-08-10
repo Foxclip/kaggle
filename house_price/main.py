@@ -28,8 +28,15 @@ if __name__ == "__main__":
         "Street",
         "Alley",
         "LotShape",
+        "LandContour",
+        "Utilities",
+        "LotConfig",
+        "LandSlope",
+        "Neighborhood",
         "YearBuilt",
         "YearRemodAdd",
+        "1stFlrSF",
+        "BedroomAbvGr",
         "SalePrice",
     ])
 
@@ -50,6 +57,11 @@ if __name__ == "__main__":
         "Street",
         "Alley",
         "LotShape",
+        "LandContour",
+        "Utilities",
+        "LotConfig",
+        "LandSlope",
+        "Neighborhood",
     ])
     scalers = dataset.scale()
 
@@ -62,19 +74,20 @@ if __name__ == "__main__":
     model_settings = simulation.NeuralNetworkSettings()
     model_settings.task_type = simulation.TaskTypes.regression
     model_settings.output_count = 1
-    model_settings.epochs = 40
+    model_settings.epochs = 1000
+    model_settings.early_stopping_patience = 10
     model_settings.folds = 10
     model_settings.bin_count = 3
-    model_settings.validation = simulation.ValidationTypes.cross_val
+    model_settings.validation = simulation.ValidationTypes.val_split
     model_settings.unscale_loss = True
-    model_settings.checkpoint = False
     model_settings.gpu = False
 
     # specifying lists of parameters
     # layers_lst = [1]
     # neurons_lst = [3]
-    layers_lst = [2, 3, 4, 5]
-    neurons_lst = [16, 32, 64, 128, 256, 512]
+    layers_lst = [1, 2, 3, 4, 5, 6, 7, 8]
+    neurons_lst = [2, 4, 8, 16, 32, 64, 128, 256, 512, 1024]
+    # neurons_lst = [2, 4, 8, 16]
 
     # training models and saving file with predictions on test dataset
     dataset.train_models(model_settings, layers_lst, neurons_lst)
