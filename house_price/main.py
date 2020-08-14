@@ -7,7 +7,7 @@ import nn_sim.simulation as simulation
 if __name__ == "__main__":
 
     # Increasing number of columns so all of them are showed
-    pd.set_option('display.max_columns', 5)
+    pd.set_option('display.max_columns', 20)
 
     # loading datasets
     train_df = pd.read_csv("train.csv")
@@ -33,6 +33,8 @@ if __name__ == "__main__":
         "LotConfig",
         "LandSlope",
         "Neighborhood",
+        "Condition1",
+        "Condition2",
         "YearBuilt",
         "YearRemodAdd",
         "1stFlrSF",
@@ -63,12 +65,10 @@ if __name__ == "__main__":
         "LandSlope",
         "Neighborhood",
     ])
-    scalers = dataset.scale()
+    dataset.n_hot_encode(["Condition1", "Condition2"], "Conditions")
 
-    # df.to_csv("df.csv")
-    # print(df)
-    # import sys
-    # sys.exit(0)
+    # scaling
+    scalers = dataset.scale()
 
     # specifying settings of a model
     model_settings = simulation.NeuralNetworkSettings()
